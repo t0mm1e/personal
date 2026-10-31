@@ -1,0 +1,47 @@
+# Scripts erin, data erbuiten.
+
+# Claude-exports en andere dumps
+conversations.json
+users.json
+projects.json
+memories.json
+*.json
+!*.example.json
+*.csv
+*.tsv
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+*.zip
+*.tar
+*.tar.gz
+*.7z
+data/
+exports/
+
+# DNA en andere grote persoonlijke bestanden
+*.fastq
+*.fastq.gz
+*.fq.gz
+*.bam
+*.vcf
+*.vcf.gz
+
+# Sleutels en geheimen
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+secrets*
+credentials*
+
+# Rommel
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
