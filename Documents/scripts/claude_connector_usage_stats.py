@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-connector_stats.py — hoe vaak is welke connector gebruikt?
+Hoe vaak is welke connector gebruikt?
 
 Leest een Claude-export (conversations.json) en telt per `integration_name`
 (Gmail, Google Drive, Receiptor, …) hoe vaak er tool-aanroepen waren, in hoeveel
 gesprekken, hoe groot de resultaten waren die terugkwamen, en wanneer.
 
 Gebruik:
-    python3 connector_stats.py conversations.json
-    python3 connector_stats.py conversations.json --per-maand
-    python3 connector_stats.py conversations.json --csv stats.csv --top 50
+    python3 $THIS_SCRIPT conversations.json
+    python3 $THIS_SCRIPT conversations.json --per-maand
+    python3 $THIS_SCRIPT conversations.json --csv stats.csv --top 50
 
 Leest alleen. Schrijft niets, behalve de optionele CSV. Alleen standaardbibliotheek.
 
