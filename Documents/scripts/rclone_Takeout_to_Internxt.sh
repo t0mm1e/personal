@@ -18,7 +18,7 @@ set -x -v
 #MAPS=Desktop
 
 #for map in $MAPS; do
-	rclone sync \
+	rclone copy \
 		~/tmp/Takeout internxt:Takeout \
                 --exclude ".DS_Store" \
                 --exclude "*.backup_*" \
