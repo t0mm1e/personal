@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """make_markdown_from_epub — leest een EPUB van stdin, schrijft Markdown naar stdout.
 
-https://claude.ai/chat/1b7744ad-e47d-48fa-86cc-a717e252e9a5
+2026-11-18: https://claude.ai/chat/738569a2-ea45-4bc3-82f9-41c805139fce
+OLDER:	    https://claude.ai/chat/1b7744ad-e47d-48fa-86cc-a717e252e9a5
 
 gebruik:  make_markdown_from_epub < boek.epub > boek.md
           make_markdown_from_epub --extract-media=media < boek.epub > boek.md
