@@ -11,6 +11,7 @@ WhatsApp, Signal
 
 Times are in time zone Europe/Amsterdam
 
+202611201842 MSD
 202611201839 https://youtube.com/live/gZZI7LbBrNQ
 202611200853 https://youtube.com/live/HYRDf7jOfUA
 202611200852 MSD
