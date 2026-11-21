@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# https://claude.ai/chat/26af8c5d-df4f-49b4-887f-679cfeef086a
+
 # ============================================================================
 #  chrome-snapshot.sh  —  klonen + ontdubbelen van het Chrome-profiel, in één stap
 # ----------------------------------------------------------------------------
@@ -35,6 +38,7 @@
 
 set -uo pipefail
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin   # cron geeft bijna niets mee; meer hebben we niet nodig
+export LC_ALL=C   # byte-voor-byte werken: macOS sort/grep struikelen anders over binaire bytes ("Illegal byte sequence")
 
 PROFILE="${CHROME_PROFILE:-$HOME/Library/Application Support/Google/Chrome/Default}"
 ROOT="${SNAPSHOT_ROOT:-$HOME/tmp/Chrome_sessions}"
@@ -106,9 +110,17 @@ else
 fi
 
 # ---- tabs.txt: de sessie als leesbare lijst, zonder parser ----
+# Alleen zichtbare ASCII (zonder " < > en spatie): canonieke URL's zijn nooit anders,
+# en zo komen er geen binaire bytes uit de sessiebestanden mee.
 if [ -d "$NEW/Default/Sessions" ]; then
-  LC_ALL=C grep -ahoE 'https?://[^[:space:][:cntrl:]"<>]+' "$NEW/Default/Sessions"/* 2>/dev/null \
-    | sort -u > "$NEW/tabs.txt" || true
+  TABERR="$NEW/.tabs-errors.txt"
+  { grep -ahoE 'https?://[!#-;=?-~]+' "$NEW/Default/Sessions"/* | sort -u; } > "$NEW/tabs.txt" 2>"$TABERR"
+  if [ -s "$TABERR" ]; then
+    say "${Y}⚠ tabs.txt mogelijk onvolledig:${X} $(head -2 "$TABERR")"
+    log "WARN tabs.txt: $(tr '\n' ' ' < "$TABERR")"
+  else
+    rm -f "$TABERR"
+  fi
   tabs=$(wc -l < "$NEW/tabs.txt" | tr -d ' ')
 else
   tabs=0
