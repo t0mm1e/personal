@@ -13,7 +13,10 @@ Times are in time zone Europe/Amsterdam
 
 MSD = Mac Studio Display (not Generally Available yet due to ancient privacy rulings still in effect 😇)
 
-202611221638 <NOT_YET>
+202611221802 MSD
+202611221802 https://youtube.com/live/zWz9dICq68E
+202611221730 pizza eten bij Daniëlle
+202611221638 https://youtube.com/live/B7W7odwAkn8
 202611221635 MSD
 202611221553 https://youtube.com/live/QPmtXpPyGk4 crosstrainen (Andor + VisionQuest)
 202611221503 sporten SportCity Enschede Boulevard (biceps)
