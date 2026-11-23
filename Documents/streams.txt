@@ -13,8 +13,10 @@ Times are in time zone Europe/Amsterdam
 
 MSD = Mac Studio Display (not Generally Available yet due to ancient privacy rulings still in effect 😇)
 
-202611231623 <NOT_YET>
-202611231608 MSD
+202611231952 https://youtube.com/live/uWWXfO8ClQM zzz
+202611231950 MSD
+202611231623 https://youtube.com/live/eEADTmoJgUs
+202611231608 MSD (copyrighted music?)
 202611231416 https://youtube.com/live/dkQX4PItzzI (copyrighted music?)
 202611230942 (Daniëlle)
 202611230838 https://youtube.com/live/eSeZxaaXIUo scheren
