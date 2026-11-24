@@ -1,0 +1,17 @@
+# Just a reminder
+
+# Current remotes:
+#
+# Name                 Type
+# ====                 ====
+# MEGA                 mega
+# box                  box
+# dropbox              dropbox
+# gdrive               drive
+# hugestorage          sftp
+# internxt             internxt
+# ugreen               sftp
+
+# Moving from remote to local:
+
+rclone move $REMOTE:$REMOTE_MAP ./$LOCAL_MAP --progress --delete-empty-src-dirs
