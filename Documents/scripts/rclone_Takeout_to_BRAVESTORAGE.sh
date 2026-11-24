@@ -7,7 +7,7 @@ set -x -v
 
 rclone copy \
 	~/tmp/Takeout ugreen:/home/Takeout \
-	--sftp-path-override "/home/t0mm2e/Taleout" \
+	--sftp-path-override "/home/t0mm2e/Takeout" \
 	--exclude ".DS_Store" \
 	--exclude "*.backup_*" \
 	--exclude "/.inProgress.nosync/**" \
