@@ -1,5 +1,8 @@
 # Just a reminder
 
+# https://claude.ai/chat/1afacd83-2229-4dba-9c36-fcc82a4707d5
+# https://claude.ai/share/f878c044-7709-4326-9bec-6404dd684d8b
+
 # Current remotes:
 #
 # Name                 Type
