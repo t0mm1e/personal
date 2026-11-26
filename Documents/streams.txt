@@ -13,7 +13,8 @@ Times are in time zone Europe/Amsterdam
 
 MSD = Mac Studio Display (not Generally Available yet due to ancient privacy rulings still in effect 😇)
 
-202611261347 <NOT_YET>
+202611261513 <NOT_YET>
+202611261347 (Daniëlle)
 202611261345 MSD
 202611260733 https://youtube.com/live/LuZp05BzjYk
 202611260710 MSD
