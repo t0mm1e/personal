@@ -11,6 +11,8 @@ setopt SHARE_HISTORY
 
 
 
+# https://claude.ai/chat/ac15c6a1-d0d0-4879-a145-af8028e76ead
+#
 # Alles bewaren, direct wegschrijven, gedeeld tussen sessies
 #(already default:) HISTFILE=~/.zsh_history
 setopt EXTENDED_HISTORY      # tijdstempel + duur per commando
