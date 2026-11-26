@@ -1,18 +1,9 @@
 #!/bin/bash
 
+# https://claude.ai/chat/7ebe12c2-e1a1-4335-b8c6-9043bb818e19
+# https://claude.ai/chat/2cfc91ec-47e0-4d61-9263-b6bc68449e2d
+
 set -x -v
-
-# Internxt Drive
-
-#if [ -x "/opt/homebrew/bin/rsync" ]; then
-#	RSYNC=/opt/homebrew/bin/rsync
-#else
-#	RSYNC=rsync
-#fi
-#$RSYNC --progress --exclude=.tmp.\* --times --size-only --no-owner --no-group --verbose --verbose  --recursive --info=progress ~/Movies /Users/thomas/Library/CloudStorage/InternxtDrive/
-#$RSYNC --progress --exclude=.tmp.\* --times --size-only --no-owner --no-group --verbose --verbose  --recursive --info=progress ~/Documents /Users/thomas/Library/CloudStorage/InternxtDrive/
-#$RSYNC --progress --exclude=.tmp.\* --times --size-only --no-owner --no-group --verbose --verbose  --recursive --info=progress ~/Downloads /Users/thomas/Library/CloudStorage/InternxtDrive/
-#$RSYNC --progress --exclude=.tmp.\* --times --size-only --no-owner --no-group --verbose --verbose  --recursive --info=progress ~/Desktop /Users/thomas/Library/CloudStorage/InternxtDrive/
 
 MAPS="Movies Documents Desktop Downloads"
 
@@ -25,8 +16,10 @@ for map in $MAPS; do
                 --exclude "/Boom/**" \
                 --exclude "/Infuse/**" \
                 --exclude "/Loom/**" \
+		--exclude "*.crdownload" \
+		--exclude "*.download/**" \
                 --suffix ".backup_$(date +%Y-%m-%d_%H%M)" \
-                --min-age 1h \
+                --min-age 1m \
                 --min-size 1B \
                 --links \
 		--progress \

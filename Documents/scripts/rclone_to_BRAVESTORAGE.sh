@@ -34,8 +34,10 @@ for map in \
 		--exclude "/Boom/**" \
 		--exclude "/Infuse/**" \
 		--exclude "/Loom/**" \
+		--exclude "*.crdownload" \
+		--exclude "*.download/**" \
 		--suffix ".backup_$(date +%Y-%m-%d_%H%M)" \
-		--min-age 1h \
+		--min-age 1m \
 		--links \
 		--progress \
 		--verbose

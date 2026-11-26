@@ -14,8 +14,10 @@ rclone copy \
 	--exclude "/Boom/**" \
 	--exclude "/Infuse/**" \
 	--exclude "/Loom/**" \
+	--exclude "*.crdownload" \
+	--exclude "*.download/**" \
 	--suffix ".backup_$(date +%Y-%m-%d_%H%M)" \
-	--min-age 1h \
+	--min-age 10s \
 	--links \
 	--progress \
 	--verbose
