@@ -118,7 +118,7 @@ final class CamView: NSView {
             m.addItem(.separator())
             m.addItem(Act("Zoom: automatisch", c.zoom == 0) { c.zoom = 0 })
             for z in zs { m.addItem(Act("Zoom: " + Cam.label(z), abs(c.zoom - z) < 0.01) { c.zoom = z }) }
-            if c.zoom > 0 { m.addItem(Act("Lens opnieuw kiezen") { c.relens() }) }
+            if c.zoom > 0, zs.contains(0.5) { m.addItem(Act("Lens opnieuw kiezen") { c.relens() }) }
         }
         m.addItem(.separator())
         for wd in [240.0, 400.0, 640.0] {
