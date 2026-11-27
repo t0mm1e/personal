@@ -1,7 +1,7 @@
-// Spiegeltjes — elke camera als randloos, zwevend venster. Geen titelbalk, geen schaduw, geen marges.
-// Slepen = verplaatsen (snapt tegen schermranden en tegen elkaar), slepen in een hoek = schalen,
-// rechtsklik = spiegelen / passend / breedte / sluiten. Menubalk-icoon: camera's aan/uit, vastzetten.
-// Bouwen: ./build.sh
+// Spiegeltjes: every camera as a borderless floating window. No title bar, no shadow, no margins.
+// Drag = move (snaps to screen edges and to other camera windows), drag a corner = resize,
+// right-click = mirror / fit / zoom / width / close. Menu bar icon: cameras on/off, Center Stage, click-through.
+// Build: ./build.sh
 
 // bron conversatie:
 // https://claude.ai/chat/57e2610b-ebe4-4e3d-99c2-f5c5ffbb4403
@@ -13,7 +13,7 @@ import CoreMediaIO
 let D = UserDefaults.standard
 let app = AppDelegate()
 
-// Zoals QuickTime: iPhones/iPads via USB als bron tonen (scherm van het toestel)
+// Like QuickTime: also list iPhones/iPads connected over USB (their screen) as capture devices
 func allowScreenCaptureDevices() {
     var a = CMIOObjectPropertyAddress(
         mSelector: CMIOObjectPropertySelector(kCMIOHardwarePropertyAllowScreenCaptureDevices),
@@ -47,7 +47,7 @@ final class Act: NSMenuItem {
 
 final class CamPanel: NSPanel {
     override var canBecomeKey: Bool { false }
-    override func constrainFrameRect(_ r: NSRect, to s: NSScreen?) -> NSRect { r } // mag overal, ook strak tegen de rand
+    override func constrainFrameRect(_ r: NSRect, to s: NSScreen?) -> NSRect { r } // allowed anywhere, flush against any edge
 }
 
 final class CamView: NSView {
@@ -85,7 +85,7 @@ final class CamView: NSView {
         let m = NSEvent.mouseLocation, dx = m.x - startMouse.x, dy = m.y - startMouse.y
         let sf = startFrame, (xs, ys) = app.snapTargets(excluding: w)
         var f = sf
-        if let (cx, cy) = corner { // schalen vanuit een hoek, verhouding blijft
+        if let (cx, cy) = corner { // resize from a corner, keep the aspect ratio
             let ar = sf.width / sf.height
             var wd = sf.width + cx * dx
             let ex = cx > 0 ? sf.minX + wd : sf.maxX - wd
@@ -98,7 +98,7 @@ final class CamView: NSView {
             f.size = NSSize(width: wd, height: wd / ar)
             f.origin.x = cx > 0 ? sf.minX : sf.maxX - wd
             f.origin.y = cy > 0 ? sf.minY : sf.maxY - f.height
-        } else { // verplaatsen met snappen
+        } else { // move with snapping
             f.origin.x += dx; f.origin.y += dy
             if let t = near(f.minX, xs) { f.origin.x = t } else if let t = near(f.maxX, xs) { f.origin.x = t - f.width }
             if let t = near(f.minY, ys) { f.origin.y = t } else if let t = near(f.maxY, ys) { f.origin.y = t - f.height }
@@ -113,6 +113,13 @@ final class CamView: NSView {
         m.addItem(NSMenuItem(title: c.device.localizedName, action: nil, keyEquivalent: ""))
         m.addItem(Act("Spiegelen", c.mirror) { c.mirror.toggle() })
         m.addItem(Act("Passend (balken i.p.v. bijsnijden)", c.fit) { c.fit.toggle() })
+        let zs = c.zoomChoices()
+        if !zs.isEmpty {
+            m.addItem(.separator())
+            m.addItem(Act("Zoom: automatisch", c.zoom == 0) { c.zoom = 0 })
+            for z in zs { m.addItem(Act("Zoom: " + Cam.label(z), abs(c.zoom - z) < 0.01) { c.zoom = z }) }
+            if c.zoom > 0 { m.addItem(Act("Lens opnieuw kiezen") { c.relens() }) }
+        }
         m.addItem(.separator())
         for wd in [240.0, 400.0, 640.0] {
             m.addItem(Act("Breedte \(Int(wd))") {
@@ -130,8 +137,11 @@ final class Cam: NSObject {
     let id: String, device: AVCaptureDevice
     let session = AVCaptureSession()
     let panel: CamPanel, view: CamView
+    var timer: Timer?
     var mirror: Bool { get { D.bool(forKey: "mirror.\(id)") } set { D.set(newValue, forKey: "mirror.\(id)"); apply() } }
     var fit: Bool { get { D.bool(forKey: "fit.\(id)") } set { D.set(newValue, forKey: "fit.\(id)"); apply() } }
+    // Chosen zoom as people see it (0.5 = ultra wide, 1 = wide); 0 = leave it to the device
+    var zoom: Double { get { D.double(forKey: "zoom.\(id)") } set { D.set(newValue, forKey: "zoom.\(id)"); applyZoom() } }
 
     init(_ d: AVCaptureDevice) {
         device = d; id = d.uniqueID
@@ -160,7 +170,12 @@ final class Cam: NSObject {
         view.preview.session = session
         apply()
         panel.orderFrontRegardless()
-        DispatchQueue.global(qos: .userInitiated).async { [session] in session.startRunning() }
+        DispatchQueue.global(qos: .userInitiated).async { [weak self, session] in
+            session.startRunning()
+            DispatchQueue.main.async { self?.applyZoom() }
+        }
+        // The iPhone sometimes drifts to another framing; pin the chosen zoom every few seconds
+        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in self?.applyZoom() }
     }
     func apply() {
         CATransaction.begin(); CATransaction.setDisableActions(true)
@@ -170,8 +185,47 @@ final class Cam: NSObject {
     }
     func save() { D.set(NSStringFromRect(panel.frame), forKey: "frame.\(id)") }
     func stop() {
+        timer?.invalidate()
         DispatchQueue.global().async { [session] in session.stopRunning() }
         panel.orderOut(nil)
+    }
+
+    // Zoom goes through KVC and responds(to:) so this builds and runs even where macOS
+    // doesn't expose zoom for a device; such a device simply gets no zoom menu.
+    func kv(_ k: String) -> Double? {
+        device.responds(to: NSSelectorFromString(k)) ? (device.value(forKey: k) as? NSNumber)?.doubleValue : nil
+    }
+    var zoomRange: (Double, Double)? {
+        guard device.responds(to: NSSelectorFromString("setVideoZoomFactor:")),
+              let lo = kv("minAvailableVideoZoomFactor"), let hi = kv("maxAvailableVideoZoomFactor"), hi > lo else { return nil }
+        return (lo, hi)
+    }
+    var multiplier: Double { kv("displayVideoZoomFactorMultiplier") ?? 1 }
+    func zoomChoices() -> [Double] {
+        guard let (lo, hi) = zoomRange else { return [] }
+        return [0.5, 1, 2, 3].filter { $0 / multiplier >= lo - 0.001 && $0 / multiplier <= hi + 0.001 }
+    }
+    static func label(_ z: Double) -> String {
+        z == 0.5 ? "0,5× (ultra wide)" : z == 1 ? "1× (wide)" : "\(Int(z))×"
+    }
+    func setFactor(_ f: Double) {
+        guard let (lo, hi) = zoomRange else { return }
+        let v = min(max(f, lo), hi)
+        if let cur = kv("videoZoomFactor"), abs(cur - v) < 0.01 { return }
+        guard (try? device.lockForConfiguration()) != nil else { return }
+        // Where supported: switch lenses only when the zoom changes, not for low light or close focus
+        if device.primaryConstituentDeviceSwitchingBehavior != .unsupported {
+            device.setPrimaryConstituentDeviceSwitchingBehavior(.restricted, restrictedSwitchingBehaviorConditions: [.videoZoomChanged])
+        }
+        device.setValue(v, forKey: "videoZoomFactor")
+        device.unlockForConfiguration()
+    }
+    func applyZoom() { if zoom > 0 { setFactor(zoom / multiplier) } }
+    // The manual QuickTime dance: briefly to the widest lens, then back to the chosen zoom
+    func relens() {
+        guard zoom > 0, let (lo, _) = zoomRange else { return }
+        setFactor(lo)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.applyZoom() }
     }
 }
 
@@ -181,6 +235,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     var openIDs: [String] { get { D.stringArray(forKey: "open") ?? [] } set { D.set(newValue, forKey: "open") } }
 
     func applicationDidFinishLaunching(_ n: Notification) {
+        applyCenterStage()
         allowScreenCaptureDevices()
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         item.button?.image = NSImage(systemSymbolName: "web.camera", accessibilityDescription: "Spiegeltjes")
@@ -192,7 +247,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         AVCaptureDevice.requestAccess(for: .video) { _ in DispatchQueue.main.async { self.restore() } }
     }
-    // Wat open stond komt terug, ook als een iPhone later pas verschijnt
+    // This app, not Control Center, decides on Center Stage (per app); off by default to keep the full frame
+    func applyCenterStage() {
+        AVCaptureDevice.centerStageControlMode = .app
+        AVCaptureDevice.isCenterStageEnabled = D.bool(forKey: "centerStage")
+    }
+    // Whatever was open comes back, also when an iPhone only shows up later
     func restore() {
         for d in devices() where openIDs.contains(d.uniqueID) && cams[d.uniqueID] == nil { cams[d.uniqueID] = Cam(d) }
     }
@@ -210,6 +270,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.removeAllItems()
         for d in devices() { m.addItem(Act(d.localizedName, cams[d.uniqueID] != nil) { [weak self] in self?.toggle(d) }) }
         m.addItem(.separator())
+        m.addItem(Act("Center Stage", D.bool(forKey: "centerStage")) { [weak self] in
+            D.set(!D.bool(forKey: "centerStage"), forKey: "centerStage"); self?.applyCenterStage()
+        })
         m.addItem(Act("Vastzetten (klikken gaan erdoorheen)", D.bool(forKey: "locked")) { [weak self] in
             let l = !D.bool(forKey: "locked"); D.set(l, forKey: "locked")
             self?.cams.values.forEach { $0.panel.ignoresMouseEvents = l }
