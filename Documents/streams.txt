@@ -13,6 +13,9 @@ Times are in time zone Europe/Amsterdam
 
 MSD = Mac Studio Display (not Generally Available yet due to ancient privacy rulings still in effect 😇)
 
+202611272009 <NOT_YET>
+202611272008 MSD
+202611271934 https://youtube.com/live/ANyzf0oTwUY crosstrainen (VisionQuest)
 202611271251 MSD
 202611271248 <NOT_YET_DEEMED_SAFE>
 202611271227 stukke Seagate bij HEMA (DHL) inleveren, terug naar Informatique
