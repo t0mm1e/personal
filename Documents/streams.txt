@@ -13,7 +13,10 @@ Times are in time zone Europe/Amsterdam
 
 MSD = Mac Studio Display (not Generally Available yet due to ancient privacy rulings still in effect 😇)
 
-202611270717 <YET_TO_BE_DEEMED_SAFE>
+202611271251 MSD
+202611271248 <NOT_YET_DEEMED_SAFE>
+202611271227 stukke Seagate bij HEMA (DHL) inleveren, terug naar Informatique
+202611270717 https://youtube.com/live/n5Olr6H1gPE
 202611270714 MSD
 202611262245 https://youtube.com/live/IS4AP048BF8 zzz
 202611262010 https://youtube.com/live/LVTMiTq4Oaw
